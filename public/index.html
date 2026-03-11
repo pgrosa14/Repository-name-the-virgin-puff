@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Virgin Puff — Family Travel Journal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: #09090b; color: #fff; }
+
+    /* Nav fades in on scroll */
+    #site-nav { transition: background 0.4s, border-color 0.4s; }
+    #site-nav.scrolled { background: rgba(9,9,11,0.92); border-color: rgba(255,255,255,0.06); backdrop-filter: blur(12px); }
+
+    /* Leaflet map container background — matches section so no gray edges show */
+    #brand-map .leaflet-container { background: #18181b !important; }
+
+    /* Card hover lift */
+    .trip-card { transition: border-color 0.2s, transform 0.2s; }
+    .trip-card:hover { border-color: rgba(255,255,255,0.25); transform: translateY(-2px); }
+    .trip-card .card-img img { transition: transform 0.5s; }
+    .trip-card:hover .card-img img { transform: scale(1.05); }
+  </style>
+</head>
+<body>
+
+  <!-- ── MINIMAL FIXED NAV ──────────────────────────────────────────────── -->
+  <nav id="site-nav" class="fixed top-0 left-0 right-0 z-50 border-b border-transparent">
+    <div class="max-w-7xl mx-auto px-6 sm:px-10 h-14 flex items-center justify-between">
+      <a href="/" class="text-[11px] font-semibold tracking-[0.3em] uppercase text-zinc-400 hover:text-white transition-colors">
+        The Virgin Puff
+      </a>
+      <a href="/create.html" class="text-[11px] font-semibold tracking-[0.2em] uppercase text-zinc-400 hover:text-white transition-colors border border-zinc-700 hover:border-zinc-400 px-4 py-2">
+        + New Trip
+      </a>
+    </div>
+  </nav>
+
+  <!-- ── HERO ──────────────────────────────────────────────────────────── -->
+  <section class="relative h-screen min-h-[600px] flex flex-col items-center justify-center overflow-hidden">
+
+    <!-- Background: solid black -->
+    <div class="absolute inset-0 bg-black"></div>
+
+    <!-- White illustration: fades down into the title -->
+    <div class="absolute inset-0 flex items-start justify-center pointer-events-none" style="padding-top: 3vh;">
+      <img src="/hero-illustration.png" alt=""
+           style="width: min(82vw, 920px);
+                  opacity: 0.72;
+                  mask-image: linear-gradient(to bottom, white 50%, rgba(255,255,255,0.25) 80%, transparent 100%);
+                  -webkit-mask-image: linear-gradient(to bottom, white 50%, rgba(255,255,255,0.25) 80%, transparent 100%);" />
+    </div>
+
+    <!-- Main content sits over the illustration -->
+    <div class="relative z-10 text-center px-6" style="margin-top: 22vh;">
+      <h1 class="font-black text-white tracking-tight leading-[0.88] mb-12 sm:mb-14"
+          style="font-size: clamp(3.2rem, 9.5vw, 7rem);">
+        The Virgin Puff
+      </h1>
+      <a href="#trips"
+         class="inline-block bg-white text-zinc-900 text-[11px] font-bold tracking-[0.25em] uppercase px-12 sm:px-16 py-4 hover:bg-zinc-100 transition-colors">
+        EXPLORE TRIPS
+      </a>
+    </div>
+
+    <!-- Bottom category links -->
+    <div class="absolute bottom-9 left-0 right-0 flex justify-center gap-6 sm:gap-12 px-4">
+      <span class="text-[10px] tracking-[0.22em] uppercase text-zinc-600 hover:text-zinc-300 cursor-default transition-colors select-none">Destinations</span>
+      <span class="text-[10px] tracking-[0.22em] uppercase text-zinc-600 hover:text-zinc-300 cursor-default transition-colors select-none">Landmarks</span>
+      <span class="text-[10px] tracking-[0.22em] uppercase text-zinc-600 hover:text-zinc-300 cursor-default transition-colors select-none">Stories</span>
+      <span class="text-[10px] tracking-[0.22em] uppercase text-zinc-600 hover:text-zinc-300 cursor-default transition-colors select-none">Memories</span>
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="absolute bottom-9 right-8 sm:right-12 hidden sm:flex flex-col items-center gap-2 opacity-30">
+      <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-400 animate-bounce"></i>
+    </div>
+  </section>
+
+  <!-- ── SUB-BANNER ────────────────────────────────────────────────────── -->
+  <section class="bg-zinc-900 border-t border-zinc-800/70 py-8 sm:py-10 px-6 text-center">
+    <p class="text-zinc-400 italic"
+       style="font-family: 'Playfair Display', serif; font-size: clamp(0.95rem, 2vw, 1.25rem); font-weight: 400; letter-spacing: 0.01em;">
+      Record the Journey. Relive the Pleasure.
+    </p>
+  </section>
+
+  <!-- ── BRAND STORY ────────────────────────────────────────────────────── -->
+  <section class="relative bg-zinc-900 border-t border-zinc-800/40 border-b border-zinc-800/70 px-6 py-16 sm:py-24 overflow-hidden">
+    <!-- World map background: crisp at page edges, fades toward the text center -->
+    <div id="brand-map" class="absolute inset-0" style="
+      opacity: 0.72;
+      mask-image: radial-gradient(ellipse 55% 65% at 50% 50%, transparent 10%, rgba(255,255,255,0.15) 35%, rgba(255,255,255,0.6) 60%, white 85%);
+      -webkit-mask-image: radial-gradient(ellipse 55% 65% at 50% 50%, transparent 10%, rgba(255,255,255,0.15) 35%, rgba(255,255,255,0.6) 60%, white 85%);
+    "></div>
+    <div class="relative z-10 max-w-2xl mx-auto space-y-6 text-zinc-400 leading-relaxed" style="font-size: 0.9375rem;">
+      <p>In the world of cigars, the first puff—the virgin puff—is something to be respected. It is the moment of introduction, when flavor, atmosphere, and intention meet for the very first time. It sets the tone for everything that follows.</p>
+      <p>Life itself begins in a similar way. A newborn's first breath marks the beginning of a lifetime of memories, journeys, and stories yet to be written. It is the first inhale of the world.</p>
+      <p>Travel offers us that same feeling again and again. When you step off a plane into a place your eyes have never seen before and take in the first breath of unfamiliar air, you experience your own virgin puff of that destination—an introduction to a new landscape, a new culture, and a new moment in time.</p>
+      <p>This website exists to capture those moments.</p>
+      <p>Here we document the routes we traveled, the places we discovered, and the stories that shaped our journeys, so that our children and grandchildren may one day retrace these paths, breathe that same air, and experience their own Virgin Puff in the places we once explored.</p>
+      <p class="text-zinc-300 italic" style="font-family: 'Playfair Display', serif; font-size: 1rem;">
+        Because every journey, like every life and every story, begins with a first breath.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── STATS BAR ──────────────────────────────────────────────────────── -->
+  <div class="bg-zinc-950 border-b border-zinc-800/30 px-6 sm:px-10 py-10 sm:py-14">
+    <div class="max-w-4xl mx-auto" id="stats-bar">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- ── JOURNEY MAP ────────────────────────────────────────────────────── -->
+  <div class="bg-zinc-950 px-4 sm:px-6 pt-8 pb-2">
+    <div class="max-w-6xl mx-auto">
+      <div id="journey-map" style="height:480px; border:1px solid rgba(255,255,255,0.07); border-radius:3px; overflow:hidden; background:#e8e0d8;"></div>
+    </div>
+  </div>
+
+  <!-- ── TRIPS ──────────────────────────────────────────────────────────── -->
+  <section id="trips" class="bg-zinc-950 px-4 sm:px-6 pt-10 pb-20 min-h-[50vh]">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- Section header -->
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <p class="text-[10px] tracking-[0.3em] uppercase text-zinc-600 mb-1">Your Journeys</p>
+          <h2 class="text-base font-semibold text-white tracking-wide">All Trips</h2>
+        </div>
+        <a href="/create.html"
+           class="text-[11px] font-semibold tracking-[0.2em] uppercase text-zinc-300 hover:text-white border border-zinc-700 hover:border-zinc-400 px-4 py-2.5 transition-colors">
+          + New Trip
+        </a>
+      </div>
+
+      <!-- Empty state -->
+      <div id="empty-state" class="hidden text-center py-24">
+        <div class="w-16 h-16 border border-zinc-800 flex items-center justify-center mx-auto mb-6">
+          <i data-lucide="map" class="w-7 h-7 text-zinc-700"></i>
+        </div>
+        <p class="text-sm font-medium text-zinc-400 mb-2">No trips yet</p>
+        <p class="text-xs text-zinc-600 mb-8 max-w-xs mx-auto leading-relaxed">
+          Start documenting your family's adventures so the memories last forever.
+        </p>
+        <a href="/create.html"
+           class="inline-block bg-white text-zinc-900 text-[11px] font-bold tracking-[0.2em] uppercase px-8 py-3 hover:bg-zinc-100 transition-colors">
+          ADD YOUR FIRST TRIP
+        </a>
+      </div>
+
+      <!-- Trips grid -->
+      <div id="trips-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        <!-- filled by JS -->
+      </div>
+
+    </div>
+  </section>
+
+  <script>
+    const GRADIENTS = [
+      'from-blue-500 to-indigo-700',
+      'from-emerald-500 to-teal-700',
+      'from-orange-500 to-rose-600',
+      'from-violet-500 to-purple-700',
+      'from-amber-500 to-orange-600',
+      'from-cyan-500 to-blue-600',
+    ];
+
+    function fmt(d) {
+      if (!d) return '—';
+      return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function tripDuration(start, end) {
+      const diff = Math.round((new Date(end) - new Date(start)) / 86400000);
+      return `${diff + 1} day${diff + 1 !== 1 ? 's' : ''}`;
+    }
+
+    // Nav scroll behaviour
+    window.addEventListener('scroll', () => {
+      document.getElementById('site-nav').classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    async function loadTrips() {
+      const res = await fetch('/api/trips');
+      const trips = await res.json();
+
+      // Stats
+      const destinations = new Set(trips.map(t => t.destination)).size;
+      const totalLandmarks = trips.reduce((s, t) => s + (t.landmark_count || 0), 0);
+      const totalPhotos = trips.reduce((s, t) => s + (t.photo_count || 0), 0);
+
+      document.getElementById('stats-bar').innerHTML = `
+        <div class="flex justify-around flex-wrap gap-8 text-center">
+          ${[
+            { value: trips.length,     label: 'Trips' },
+            { value: destinations,      label: 'Destinations' },
+            { value: totalLandmarks,   label: 'Landmarks' },
+            { value: totalPhotos,      label: 'Photos' },
+          ].map(s => `
+            <div>
+              <div class="text-4xl sm:text-5xl font-black text-indigo-400 leading-none mb-2">${s.value}</div>
+              <div class="text-[10px] tracking-[0.25em] uppercase text-zinc-500">${s.label}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      const grid = document.getElementById('trips-grid');
+      const emptyState = document.getElementById('empty-state');
+
+      if (trips.length === 0) {
+        emptyState.classList.remove('hidden');
+        lucide.createIcons();
+        return;
+      }
+
+      grid.innerHTML = trips.map(trip => {
+        const grad = GRADIENTS[trip.id % GRADIENTS.length];
+        const coverUrl = trip.cover_photo ? `/uploads/${trip.cover_photo}` : null;
+        const lmCount = trip.landmark_count || 0;
+        const phCount = trip.photo_count || 0;
+
+        return `
+          <a href="/trip.html?id=${trip.id}"
+             class="trip-card block bg-zinc-900 border border-zinc-800 overflow-hidden group">
+            <!-- Image area -->
+            <div class="card-img h-48 relative overflow-hidden bg-zinc-800">
+              ${coverUrl
+                ? `<img src="${coverUrl}" alt="${trip.title}" class="w-full h-full object-cover" />`
+                : `<div class="w-full h-full bg-gradient-to-br ${grad} opacity-80"></div>`
+              }
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+              <div class="absolute bottom-3 left-4">
+                <span class="text-[10px] font-medium tracking-[0.15em] uppercase text-white/60">${trip.destination}</span>
+              </div>
+            </div>
+            <!-- Text -->
+            <div class="p-5">
+              <h3 class="font-semibold text-white text-sm mb-2 truncate">${trip.title}</h3>
+              <div class="flex items-center gap-1.5 text-[11px] text-zinc-500 mb-1.5">
+                <i data-lucide="calendar" class="w-3 h-3 shrink-0"></i>
+                <span>${fmt(trip.start_date)} – ${fmt(trip.end_date)}</span>
+              </div>
+              ${trip.weather ? `
+              <div class="flex items-center gap-1.5 text-[11px] text-zinc-500 mb-1.5">
+                <i data-lucide="cloud-sun" class="w-3 h-3 shrink-0"></i>
+                <span class="truncate">${trip.weather}</span>
+              </div>` : ''}
+              <div class="flex items-center gap-5 mt-4 pt-4 border-t border-zinc-800">
+                <span class="flex items-center gap-1.5 text-[11px] text-zinc-600">
+                  <i data-lucide="landmark" class="w-3 h-3"></i>
+                  ${lmCount} site${lmCount !== 1 ? 's' : ''}
+                </span>
+                <span class="flex items-center gap-1.5 text-[11px] text-zinc-600">
+                  <i data-lucide="image" class="w-3 h-3"></i>
+                  ${phCount} photo${phCount !== 1 ? 's' : ''}
+                </span>
+                <span class="text-[10px] text-zinc-700 ml-auto">${tripDuration(trip.start_date, trip.end_date)}</span>
+              </div>
+            </div>
+          </a>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+      initJourneyMap(trips);
+    }
+
+    // ── Interactive journey map ───────────────────────────────────────────
+    async function initJourneyMap(trips) {
+      const mapEl = document.getElementById('journey-map');
+      if (!mapEl || !trips.length) return;
+
+      const jmap = L.map('journey-map', {
+        center: [20, 10], zoom: 2,
+        zoomControl: true, attributionControl: false, worldCopyJump: false,
+      });
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+      }).addTo(jmap);
+
+      // Group trips by destination name
+      const groups = {};
+      trips.forEach(t => { (groups[t.destination] = groups[t.destination] || []).push(t); });
+
+      function makePin(count) {
+        const inner = count > 1
+          ? `<b style="transform:rotate(45deg);display:block;font-size:12px;color:#fff;">${count}</b>`
+          : `<span style="transform:rotate(45deg);display:block;font-size:14px;line-height:1;">✈</span>`;
+        return L.divIcon({
+          className: '',
+          html: `<div style="width:34px;height:34px;background:#6366f1;border:2.5px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,0.3);cursor:pointer;">${inner}</div>`,
+          iconSize: [34, 42], iconAnchor: [17, 42], popupAnchor: [0, -46],
+        });
+      }
+
+      for (const [dest, destTrips] of Object.entries(groups)) {
+        const geo = await fetch(`/api/geocode?q=${encodeURIComponent(dest)}`)
+          .then(r => r.json()).catch(() => null);
+        if (!geo || !geo.lat) continue;
+
+        const marker = L.marker([geo.lat, geo.lng], { icon: makePin(destTrips.length) }).addTo(jmap);
+
+        if (destTrips.length === 1) {
+          marker.bindTooltip(destTrips[0].title, { direction: 'top', offset: [0, -46] });
+          marker.on('click', () => { window.location = `/trip.html?id=${destTrips[0].id}`; });
+        } else {
+          const links = destTrips.map(t =>
+            `<a href="/trip.html?id=${t.id}" style="display:block;padding:5px 0;font-size:13px;color:#3730a3;text-decoration:none;border-bottom:1px solid #f4f4f5;">${t.title}</a>`
+          ).join('');
+          marker.bindPopup(`<div style="font-family:Inter,sans-serif;min-width:170px;"><div style="font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:#71717a;margin-bottom:7px;">${dest}</div>${links}</div>`, { maxWidth: 230 });
+        }
+      }
+    }
+
+    loadTrips();
+
+    // Decorative world map background in the brand story section
+    window.addEventListener('load', function () {
+      const container = document.getElementById('brand-map');
+
+      function worldZoom() {
+        // Exact fractional zoom so 360° of longitude fills the container width
+        return Math.log2(container.getBoundingClientRect().width / 256);
+      }
+
+      const brandMap = L.map('brand-map', {
+        // Center on ~mid-Atlantic so Americas hug the left edge, Eurasia the right
+        center: [15, -10],
+        zoom: worldZoom(),
+        zoomSnap: 0,        // allow fractional zoom — critical for filling exact px width
+        zoomDelta: 0,
+        zoomControl: false,
+        attributionControl: false,
+        dragging: false,
+        touchZoom: false,
+        doubleClickZoom: false,
+        scrollWheelZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        worldCopyJump: false,
+      });
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        noWrap: true,
+      }).addTo(brandMap);
+
+      brandMap.invalidateSize();
+
+      window.addEventListener('resize', function () {
+        brandMap.setZoom(worldZoom(), { animate: false });
+        brandMap.invalidateSize();
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Trip — The Virgin Puff</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.5; cursor: pointer; }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+  <!-- Nav -->
+  <nav class="bg-white border-b border-slate-100 sticky top-0 z-20 shadow-sm">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
+      <a id="back-link" href="/" class="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span id="back-label">All Trips</span>
+      </a>
+      <div class="flex items-center gap-2 ml-auto">
+        <div class="w-6 h-6 bg-blue-600 rounded-md flex items-center justify-center">
+          <i data-lucide="plane" class="w-3 h-3 text-white"></i>
+        </div>
+        <span class="text-sm font-semibold text-slate-700">The Virgin Puff</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+    <div class="mb-8">
+      <h1 id="page-title" class="text-2xl font-bold text-slate-900">New Trip</h1>
+      <p class="text-sm text-slate-500 mt-1">Fill in the details to log your family adventure.</p>
+    </div>
+
+    <form id="trip-form" onsubmit="submitForm(event)" class="space-y-6">
+
+      <!-- Cover Photo -->
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div id="cover-preview" class="w-full h-52 bg-gradient-to-br from-blue-100 to-indigo-200 relative cursor-pointer" onclick="document.getElementById('cover-input').click()">
+          <div id="cover-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
+            <i data-lucide="image-plus" class="w-10 h-10 mb-2 opacity-60"></i>
+            <p class="text-sm font-medium">Click to add a cover photo</p>
+            <p class="text-xs mt-1 opacity-70">JPG, PNG, WEBP up to 50MB</p>
+          </div>
+          <img id="cover-img" src="" alt="" class="w-full h-full object-cover hidden" />
+          <div id="cover-change-overlay" class="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
+            <span class="bg-white/90 text-slate-700 text-xs font-medium px-3 py-1.5 rounded-full">Change photo</span>
+          </div>
+        </div>
+        <input type="file" id="cover-input" accept="image/*" class="hidden" onchange="previewCover(event)" />
+        <div id="cover-actions" class="hidden flex items-center justify-between px-4 py-3 border-t border-slate-100">
+          <span class="text-xs text-slate-500" id="cover-filename"></span>
+          <button type="button" onclick="removeCover()" class="text-xs text-red-500 hover:text-red-700 font-medium">Remove</button>
+        </div>
+        <!-- Show existing cover for edit mode -->
+        <div id="existing-cover-bar" class="hidden flex items-center gap-3 px-4 py-3 border-t border-slate-100">
+          <i data-lucide="image" class="w-4 h-4 text-slate-400"></i>
+          <span class="text-xs text-slate-500 flex-1">Current cover photo</span>
+          <button type="button" onclick="removeExistingCover()" class="text-xs text-red-500 hover:text-red-700 font-medium">Remove cover</button>
+        </div>
+      </div>
+
+      <!-- Basic Info -->
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-5">
+        <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Trip Details</h2>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Trip Name <span class="text-red-500">*</span></label>
+          <input type="text" id="f-title" required placeholder="e.g. Paris Summer 2024" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Destination <span class="text-red-500">*</span></label>
+          <div class="relative">
+            <i data-lucide="map-pin" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input type="text" id="f-destination" required placeholder="e.g. Paris, France" class="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1.5">Start Date <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <i data-lucide="calendar" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+              <input type="date" id="f-start" required class="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1.5">End Date <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <i data-lucide="calendar" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+              <input type="date" id="f-end" required class="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Weather</label>
+          <div class="relative">
+            <i data-lucide="cloud-sun" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input type="text" id="f-weather" placeholder="e.g. Sunny, 26°C with a light breeze" class="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+          <p class="text-xs text-slate-400 mt-1.5">Describe the weather conditions you experienced on the trip.</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Description</label>
+          <textarea id="f-description" rows="4" placeholder="What made this trip special? What do you want to remember?" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="flex items-center gap-3 pb-6">
+        <a id="cancel-link" href="/" class="flex-1 sm:flex-none sm:w-32 py-3 text-sm font-medium text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-100 transition-colors text-center">
+          Cancel
+        </a>
+        <button type="submit" id="submit-btn" class="flex-1 sm:flex-none sm:w-48 py-3 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors flex items-center justify-center gap-2">
+          <i data-lucide="check" class="w-4 h-4"></i>
+          <span id="submit-label">Save Trip</span>
+        </button>
+      </div>
+
+    </form>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const tripId = params.get('id');
+    let existingCoverPhoto = null;
+    let removingExistingCover = false;
+
+    async function initPage() {
+      lucide.createIcons();
+
+      if (tripId) {
+        // Edit mode
+        document.getElementById('page-title').textContent = 'Edit Trip';
+        document.getElementById('submit-label').textContent = 'Save Changes';
+        document.title = 'Edit Trip — The Virgin Puff';
+
+        const res = await fetch(`/api/trips/${tripId}`);
+        if (!res.ok) { location.href = '/'; return; }
+        const trip = await res.json();
+
+        document.getElementById('f-title').value = trip.title;
+        document.getElementById('f-destination').value = trip.destination;
+        document.getElementById('f-start').value = trip.start_date;
+        document.getElementById('f-end').value = trip.end_date;
+        document.getElementById('f-weather').value = trip.weather || '';
+        document.getElementById('f-description').value = trip.description || '';
+
+        // Back link goes to trip page
+        document.getElementById('back-link').href = `/trip.html?id=${tripId}`;
+        document.getElementById('back-label').textContent = 'Back to Trip';
+        document.getElementById('cancel-link').href = `/trip.html?id=${tripId}`;
+
+        if (trip.cover_photo) {
+          existingCoverPhoto = trip.cover_photo;
+          // Show existing cover
+          const coverPreview = document.getElementById('cover-preview');
+          const img = document.getElementById('cover-img');
+          const placeholder = document.getElementById('cover-placeholder');
+          const overlay = document.getElementById('cover-change-overlay');
+          img.src = `/uploads/${trip.cover_photo}`;
+          img.classList.remove('hidden');
+          placeholder.classList.add('hidden');
+          overlay.classList.remove('opacity-0');
+          overlay.classList.add('opacity-0');
+          document.getElementById('existing-cover-bar').classList.remove('hidden');
+          document.getElementById('existing-cover-bar').classList.add('flex');
+        }
+      } else {
+        document.getElementById('submit-label').textContent = 'Save Trip';
+      }
+    }
+
+    function previewCover(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      const img = document.getElementById('cover-img');
+      const placeholder = document.getElementById('cover-placeholder');
+      const actions = document.getElementById('cover-actions');
+      const existingBar = document.getElementById('existing-cover-bar');
+
+      img.src = url;
+      img.classList.remove('hidden');
+      placeholder.classList.add('hidden');
+      actions.classList.remove('hidden');
+      actions.classList.add('flex');
+      existingBar.classList.add('hidden');
+      existingBar.classList.remove('flex');
+      document.getElementById('cover-filename').textContent = file.name;
+    }
+
+    function removeCover() {
+      document.getElementById('cover-input').value = '';
+      document.getElementById('cover-img').src = '';
+      document.getElementById('cover-img').classList.add('hidden');
+      document.getElementById('cover-placeholder').classList.remove('hidden');
+      document.getElementById('cover-actions').classList.add('hidden');
+      document.getElementById('cover-actions').classList.remove('flex');
+    }
+
+    function removeExistingCover() {
+      removingExistingCover = true;
+      document.getElementById('cover-img').src = '';
+      document.getElementById('cover-img').classList.add('hidden');
+      document.getElementById('cover-placeholder').classList.remove('hidden');
+      document.getElementById('existing-cover-bar').classList.add('hidden');
+      document.getElementById('existing-cover-bar').classList.remove('flex');
+    }
+
+    async function submitForm(e) {
+      e.preventDefault();
+
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> Saving…';
+
+      const fd = new FormData();
+      fd.append('title', document.getElementById('f-title').value.trim());
+      fd.append('destination', document.getElementById('f-destination').value.trim());
+      fd.append('start_date', document.getElementById('f-start').value);
+      fd.append('end_date', document.getElementById('f-end').value);
+      fd.append('weather', document.getElementById('f-weather').value.trim());
+      fd.append('description', document.getElementById('f-description').value.trim());
+
+      const coverFile = document.getElementById('cover-input').files[0];
+      if (coverFile) fd.append('cover_photo', coverFile);
+      if (removingExistingCover) fd.append('remove_cover', 'true');
+
+      let newId;
+      if (tripId) {
+        await fetch(`/api/trips/${tripId}`, { method: 'PUT', body: fd });
+        newId = tripId;
+      } else {
+        const res = await fetch('/api/trips', { method: 'POST', body: fd });
+        const data = await res.json();
+        newId = data.id;
+      }
+
+      location.href = `/trip.html?id=${newId}`;
+    }
+
+    initPage();
+  </script>
+</body>
+</html>

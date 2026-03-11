@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trip — The Virgin Puff</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .photo-item img { transition: transform 0.2s; }
+    .photo-item:hover img { transform: scale(1.03); }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+  <!-- Nav -->
+  <nav class="bg-white border-b border-slate-100 sticky top-0 z-20 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
+      <a href="/" class="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        All Trips
+      </a>
+      <div class="flex-1"></div>
+      <button id="btn-edit" onclick="editTrip()" class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+        <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+        Edit
+      </button>
+      <button id="btn-delete" onclick="confirmDeleteTrip()" class="inline-flex items-center gap-1.5 text-sm font-medium text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors">
+        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+        Delete
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div id="hero" class="w-full h-72 sm:h-80 relative overflow-hidden">
+    <div id="hero-bg" class="absolute inset-0 bg-gradient-to-br from-blue-400 to-indigo-600"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
+    <div class="absolute bottom-6 left-0 right-0 px-6 max-w-5xl mx-auto">
+      <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full border border-white/30 mb-3">
+        <i data-lucide="map-pin" class="w-3 h-3"></i>
+        <span id="hero-destination">—</span>
+      </div>
+      <h1 id="hero-title" class="text-3xl sm:text-4xl font-bold text-white drop-shadow-sm"></h1>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+    <!-- Trip info pills -->
+    <div class="flex flex-wrap gap-3" id="info-pills">
+      <!-- filled by JS -->
+    </div>
+
+    <!-- Description -->
+    <div id="description-section" class="hidden bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+      <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">About this trip</h2>
+      <p id="trip-description" class="text-slate-700 leading-relaxed"></p>
+    </div>
+
+    <!-- Landmarks -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <div>
+          <h2 class="text-base font-semibold text-slate-900">Landmarks & Sites</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Historical sites, museums, natural wonders and more</p>
+        </div>
+        <button onclick="openLandmarkModal()" class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          Add Site
+        </button>
+      </div>
+      <div id="landmarks-list" class="divide-y divide-slate-100">
+        <!-- filled by JS -->
+      </div>
+      <div id="landmarks-empty" class="hidden py-12 text-center">
+        <i data-lucide="landmark" class="w-8 h-8 text-slate-200 mx-auto mb-3"></i>
+        <p class="text-sm text-slate-400">No sites added yet — start logging your visits!</p>
+      </div>
+    </div>
+
+    <!-- Photos -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <div>
+          <h2 class="text-base font-semibold text-slate-900">Photos</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Pictures that colour the experience</p>
+        </div>
+        <label class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors cursor-pointer">
+          <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+          Upload
+          <input type="file" id="photo-upload" accept="image/*" multiple class="hidden" onchange="uploadPhotos(event)" />
+        </label>
+      </div>
+      <div id="photos-grid" class="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <!-- filled by JS -->
+      </div>
+      <div id="photos-empty" class="hidden py-12 text-center">
+        <i data-lucide="image" class="w-8 h-8 text-slate-200 mx-auto mb-3"></i>
+        <p class="text-sm text-slate-400">No photos yet — upload some memories!</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Landmark Modal ─────────────────────────────────────────────────── -->
+  <div id="landmark-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4" onclick="if(event.target===this)closeLandmarkModal()">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <h3 id="landmark-modal-title" class="text-base font-semibold text-slate-900">Add Landmark</h3>
+        <button onclick="closeLandmarkModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="landmark-form" class="p-6 space-y-4" onsubmit="submitLandmark(event)">
+        <input type="hidden" id="lm-id" />
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Name <span class="text-red-500">*</span></label>
+          <input type="text" id="lm-name" required placeholder="e.g. Eiffel Tower" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
+          <select id="lm-category" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+            <option value="landmark">Landmark</option>
+            <option value="historical">Historical Site</option>
+            <option value="museum">Museum</option>
+            <option value="natural">Natural Wonder</option>
+            <option value="beach">Beach</option>
+            <option value="food">Food & Dining</option>
+            <option value="shopping">Shopping</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Date Visited</label>
+          <input type="date" id="lm-date" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Notes</label>
+          <textarea id="lm-notes" rows="3" placeholder="Memories, highlights, things you loved..." class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="closeLandmarkModal()" class="flex-1 py-2.5 text-sm font-medium text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
+            Cancel
+          </button>
+          <button type="submit" class="flex-1 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors">
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Photo Lightbox ─────────────────────────────────────────────────── -->
+  <div id="lightbox" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center" onclick="if(event.target===this)closeLightbox()">
+    <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white/70 hover:text-white transition-colors z-10">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <button onclick="prevPhoto()" class="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors z-10 w-10 h-10 flex items-center justify-center rounded-full bg-black/30 hover:bg-black/60">
+      <i data-lucide="chevron-left" class="w-6 h-6"></i>
+    </button>
+    <button onclick="nextPhoto()" class="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors z-10 w-10 h-10 flex items-center justify-center rounded-full bg-black/30 hover:bg-black/60">
+      <i data-lucide="chevron-right" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center max-w-5xl max-h-screen px-16 py-12 w-full">
+      <img id="lightbox-img" src="" alt="" class="max-h-[80vh] max-w-full object-contain rounded-lg" />
+      <div class="mt-4 text-center">
+        <p id="lightbox-caption" class="text-white/80 text-sm"></p>
+        <p id="lightbox-counter" class="text-white/40 text-xs mt-1"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Caption Edit Modal ─────────────────────────────────────────────── -->
+  <div id="caption-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4" onclick="if(event.target===this)closeCaptionModal()">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+      <h3 class="text-base font-semibold text-slate-900 mb-4">Edit Caption</h3>
+      <input type="hidden" id="caption-photo-id" />
+      <input type="text" id="caption-input" placeholder="Add a caption..." class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <div class="flex gap-3 mt-4">
+        <button onclick="closeCaptionModal()" class="flex-1 py-2.5 text-sm font-medium text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50">Cancel</button>
+        <button onclick="saveCaption()" class="flex-1 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Delete Trip Confirmation ───────────────────────────────────────── -->
+  <div id="delete-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+      <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="trash-2" class="w-6 h-6 text-red-600"></i>
+      </div>
+      <h3 class="text-base font-semibold text-slate-900 mb-2">Delete this trip?</h3>
+      <p class="text-sm text-slate-500 mb-6">This will permanently delete the trip, all its landmarks, and all uploaded photos. This cannot be undone.</p>
+      <div class="flex gap-3">
+        <button onclick="closeDeleteModal()" class="flex-1 py-2.5 text-sm font-medium text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50">Cancel</button>
+        <button onclick="deleteTrip()" class="flex-1 py-2.5 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const GRADIENTS = [
+      'from-blue-400 to-indigo-600',
+      'from-emerald-400 to-teal-600',
+      'from-orange-400 to-rose-500',
+      'from-violet-400 to-purple-600',
+      'from-amber-400 to-orange-500',
+      'from-cyan-400 to-blue-500',
+    ];
+
+    const CATEGORY = {
+      landmark:      { label: 'Landmark',       icon: 'map-pin',      cls: 'bg-blue-100 text-blue-700' },
+      historical:    { label: 'Historical Site', icon: 'landmark',     cls: 'bg-amber-100 text-amber-700' },
+      museum:        { label: 'Museum',          icon: 'book-open',    cls: 'bg-violet-100 text-violet-700' },
+      natural:       { label: 'Natural Wonder',  icon: 'tree-pine',    cls: 'bg-emerald-100 text-emerald-700' },
+      beach:         { label: 'Beach',           icon: 'waves',        cls: 'bg-cyan-100 text-cyan-700' },
+      food:          { label: 'Food & Dining',   icon: 'utensils',     cls: 'bg-rose-100 text-rose-700' },
+      shopping:      { label: 'Shopping',        icon: 'shopping-bag', cls: 'bg-pink-100 text-pink-700' },
+      entertainment: { label: 'Entertainment',   icon: 'music',        cls: 'bg-purple-100 text-purple-700' },
+      other:         { label: 'Other',           icon: 'star',         cls: 'bg-slate-100 text-slate-600' },
+    };
+
+    const params = new URLSearchParams(location.search);
+    const tripId = params.get('id');
+    let trip = null;
+    let allPhotos = [];
+    let lightboxIndex = 0;
+
+    function fmt(d) {
+      if (!d) return '—';
+      return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+
+    function fmtShort(d) {
+      if (!d) return '';
+      return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function tripDuration(start, end) {
+      const diff = Math.round((new Date(end) - new Date(start)) / 86400000);
+      return `${diff + 1} day${diff + 1 !== 1 ? 's' : ''}`;
+    }
+
+    async function loadTrip() {
+      if (!tripId) { location.href = '/'; return; }
+      const res = await fetch(`/api/trips/${tripId}`);
+      if (!res.ok) { location.href = '/'; return; }
+      trip = await res.json();
+      document.title = `${trip.title} — The Virgin Puff`;
+      renderTrip();
+    }
+
+    function renderTrip() {
+      // Hero
+      document.getElementById('hero-title').textContent = trip.title;
+      document.getElementById('hero-destination').textContent = trip.destination;
+
+      const heroBg = document.getElementById('hero-bg');
+      if (trip.cover_photo) {
+        heroBg.style.backgroundImage = `url(/uploads/${trip.cover_photo})`;
+        heroBg.style.backgroundSize = 'cover';
+        heroBg.style.backgroundPosition = 'center';
+        heroBg.className = 'absolute inset-0';
+      } else {
+        heroBg.className = `absolute inset-0 bg-gradient-to-br ${GRADIENTS[trip.id % GRADIENTS.length]}`;
+      }
+
+      // Info pills
+      document.getElementById('info-pills').innerHTML = `
+        <div class="flex items-center gap-2 bg-white border border-slate-100 shadow-sm rounded-full px-4 py-2 text-sm text-slate-700">
+          <i data-lucide="calendar" class="w-4 h-4 text-blue-500"></i>
+          <span>${fmt(trip.start_date)} – ${fmt(trip.end_date)}</span>
+        </div>
+        <div class="flex items-center gap-2 bg-white border border-slate-100 shadow-sm rounded-full px-4 py-2 text-sm text-slate-700">
+          <i data-lucide="clock" class="w-4 h-4 text-blue-500"></i>
+          <span>${tripDuration(trip.start_date, trip.end_date)}</span>
+        </div>
+        ${trip.weather ? `
+        <div class="flex items-center gap-2 bg-white border border-slate-100 shadow-sm rounded-full px-4 py-2 text-sm text-slate-700">
+          <i data-lucide="cloud-sun" class="w-4 h-4 text-amber-500"></i>
+          <span>${trip.weather}</span>
+        </div>` : ''}
+      `;
+
+      // Description
+      if (trip.description) {
+        document.getElementById('description-section').classList.remove('hidden');
+        document.getElementById('trip-description').textContent = trip.description;
+      }
+
+      renderLandmarks();
+      renderPhotos();
+      lucide.createIcons();
+    }
+
+    function renderLandmarks() {
+      const list = document.getElementById('landmarks-list');
+      const empty = document.getElementById('landmarks-empty');
+      const landmarks = trip.landmarks || [];
+
+      if (landmarks.length === 0) {
+        list.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+      list.innerHTML = landmarks.map(lm => {
+        const cat = CATEGORY[lm.category] || CATEGORY.landmark;
+        return `
+          <div class="flex items-start gap-4 px-6 py-4" id="lm-${lm.id}">
+            <div class="w-9 h-9 ${cat.cls} rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+              <i data-lucide="${cat.icon}" class="w-4 h-4"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <div class="font-medium text-slate-900 text-sm">${lm.name}</div>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-xs ${cat.cls} px-2 py-0.5 rounded-full font-medium">${cat.label}</span>
+                    ${lm.date_visited ? `<span class="text-xs text-slate-400">${fmtShort(lm.date_visited)}</span>` : ''}
+                  </div>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <button onclick="openEditLandmark(${lm.id})" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <button onclick="deleteLandmark(${lm.id})" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+              ${lm.description ? `<p class="text-sm text-slate-500 mt-1.5 leading-relaxed">${lm.description}</p>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function renderPhotos() {
+      const grid = document.getElementById('photos-grid');
+      const empty = document.getElementById('photos-empty');
+      allPhotos = trip.photos || [];
+
+      if (allPhotos.length === 0) {
+        grid.innerHTML = '';
+        grid.classList.add('hidden');
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      grid.classList.remove('hidden');
+      empty.classList.add('hidden');
+      grid.innerHTML = allPhotos.map((ph, i) => `
+        <div class="photo-item relative group rounded-xl overflow-hidden bg-slate-100 aspect-square" id="ph-${ph.id}">
+          <img src="/uploads/${ph.filename}" alt="${ph.caption || ''}" class="w-full h-full object-cover cursor-pointer" onclick="openLightbox(${i})" />
+          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors"></div>
+          <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="openCaptionModal(${ph.id}, '${(ph.caption||'').replace(/'/g,"\\'")}')" class="w-7 h-7 bg-white/90 rounded-lg flex items-center justify-center text-slate-600 hover:text-blue-600 hover:bg-white">
+              <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+            </button>
+            <button onclick="deletePhoto(${ph.id})" class="w-7 h-7 bg-white/90 rounded-lg flex items-center justify-center text-slate-600 hover:text-red-600 hover:bg-white">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+          ${ph.caption ? `<div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-2"><p class="text-white text-xs truncate">${ph.caption}</p></div>` : ''}
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    // ── Landmark Modal ──────────────────────────────────────────────────────
+
+    function openLandmarkModal() {
+      document.getElementById('landmark-modal-title').textContent = 'Add Landmark';
+      document.getElementById('lm-id').value = '';
+      document.getElementById('lm-name').value = '';
+      document.getElementById('lm-category').value = 'landmark';
+      document.getElementById('lm-date').value = '';
+      document.getElementById('lm-notes').value = '';
+      showModal('landmark-modal');
+    }
+
+    function openEditLandmark(id) {
+      const lm = trip.landmarks.find(l => l.id === id);
+      if (!lm) return;
+      document.getElementById('landmark-modal-title').textContent = 'Edit Landmark';
+      document.getElementById('lm-id').value = lm.id;
+      document.getElementById('lm-name').value = lm.name;
+      document.getElementById('lm-category').value = lm.category || 'landmark';
+      document.getElementById('lm-date').value = lm.date_visited || '';
+      document.getElementById('lm-notes').value = lm.description || '';
+      showModal('landmark-modal');
+    }
+
+    function closeLandmarkModal() { hideModal('landmark-modal'); }
+
+    async function submitLandmark(e) {
+      e.preventDefault();
+      const id = document.getElementById('lm-id').value;
+      const body = {
+        name: document.getElementById('lm-name').value.trim(),
+        category: document.getElementById('lm-category').value,
+        date_visited: document.getElementById('lm-date').value,
+        description: document.getElementById('lm-notes').value.trim(),
+      };
+
+      if (id) {
+        await fetch(`/api/landmarks/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const idx = trip.landmarks.findIndex(l => l.id == id);
+        if (idx !== -1) trip.landmarks[idx] = { ...trip.landmarks[idx], ...body };
+      } else {
+        const res = await fetch(`/api/trips/${tripId}/landmarks`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const newLm = await res.json();
+        trip.landmarks.push(newLm);
+        // Sort by date
+        trip.landmarks.sort((a, b) => (a.date_visited || '').localeCompare(b.date_visited || '') || a.id - b.id);
+      }
+
+      closeLandmarkModal();
+      renderLandmarks();
+    }
+
+    async function deleteLandmark(id) {
+      if (!confirm('Remove this landmark?')) return;
+      await fetch(`/api/landmarks/${id}`, { method: 'DELETE' });
+      trip.landmarks = trip.landmarks.filter(l => l.id !== id);
+      renderLandmarks();
+    }
+
+    // ── Photos ──────────────────────────────────────────────────────────────
+
+    async function uploadPhotos(e) {
+      const files = e.target.files;
+      if (!files.length) return;
+      const fd = new FormData();
+      for (const f of files) fd.append('photos', f);
+      const res = await fetch(`/api/trips/${tripId}/photos`, { method: 'POST', body: fd });
+      const newPhotos = await res.json();
+      trip.photos.push(...newPhotos);
+      renderPhotos();
+      e.target.value = '';
+    }
+
+    async function deletePhoto(id) {
+      if (!confirm('Delete this photo?')) return;
+      await fetch(`/api/photos/${id}`, { method: 'DELETE' });
+      trip.photos = trip.photos.filter(p => p.id !== id);
+      renderPhotos();
+    }
+
+    // ── Caption modal ───────────────────────────────────────────────────────
+
+    function openCaptionModal(photoId, caption) {
+      document.getElementById('caption-photo-id').value = photoId;
+      document.getElementById('caption-input').value = caption;
+      showModal('caption-modal');
+    }
+
+    function closeCaptionModal() { hideModal('caption-modal'); }
+
+    async function saveCaption() {
+      const id = document.getElementById('caption-photo-id').value;
+      const caption = document.getElementById('caption-input').value.trim();
+      await fetch(`/api/photos/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ caption }) });
+      const ph = trip.photos.find(p => p.id == id);
+      if (ph) ph.caption = caption;
+      closeCaptionModal();
+      renderPhotos();
+    }
+
+    // ── Lightbox ────────────────────────────────────────────────────────────
+
+    function openLightbox(index) {
+      lightboxIndex = index;
+      updateLightbox();
+      showModal('lightbox');
+    }
+
+    function closeLightbox() { hideModal('lightbox'); }
+
+    function updateLightbox() {
+      const ph = allPhotos[lightboxIndex];
+      document.getElementById('lightbox-img').src = `/uploads/${ph.filename}`;
+      document.getElementById('lightbox-caption').textContent = ph.caption || '';
+      document.getElementById('lightbox-counter').textContent = `${lightboxIndex + 1} / ${allPhotos.length}`;
+    }
+
+    function prevPhoto() {
+      lightboxIndex = (lightboxIndex - 1 + allPhotos.length) % allPhotos.length;
+      updateLightbox();
+    }
+
+    function nextPhoto() {
+      lightboxIndex = (lightboxIndex + 1) % allPhotos.length;
+      updateLightbox();
+    }
+
+    // ── Delete trip ─────────────────────────────────────────────────────────
+
+    function confirmDeleteTrip() { showModal('delete-modal'); }
+    function closeDeleteModal() { hideModal('delete-modal'); }
+
+    async function deleteTrip() {
+      await fetch(`/api/trips/${tripId}`, { method: 'DELETE' });
+      location.href = '/';
+    }
+
+    function editTrip() { location.href = `/create.html?id=${tripId}`; }
+
+    // ── Modal helpers ───────────────────────────────────────────────────────
+
+    function showModal(id) {
+      const el = document.getElementById(id);
+      el.classList.remove('hidden');
+      el.classList.add('flex');
+    }
+
+    function hideModal(id) {
+      const el = document.getElementById(id);
+      el.classList.add('hidden');
+      el.classList.remove('flex');
+    }
+
+    // Keyboard navigation for lightbox
+    document.addEventListener('keydown', e => {
+      const lightbox = document.getElementById('lightbox');
+      if (!lightbox.classList.contains('hidden')) {
+        if (e.key === 'ArrowLeft') prevPhoto();
+        if (e.key === 'ArrowRight') nextPhoto();
+        if (e.key === 'Escape') closeLightbox();
+      } else {
+        if (e.key === 'Escape') {
+          ['landmark-modal', 'caption-modal', 'delete-modal'].forEach(id => {
+            if (!document.getElementById(id).classList.contains('hidden')) hideModal(id);
+          });
+        }
+      }
+    });
+
+    loadTrip();
+  </script>
+</body>
+</html>
