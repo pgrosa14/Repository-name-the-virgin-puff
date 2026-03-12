@@ -1,6 +1,9 @@
 {
   "name": "the-virgin-puff",
   "version": "1.0.0",
+  "engines": {
+    "node": "20.x"
+  },
   "description": "Family Travel Journal",
   "main": "server.js",
   "scripts": {
