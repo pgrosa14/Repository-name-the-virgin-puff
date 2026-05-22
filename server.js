@@ -22,7 +22,7 @@ const upload = multer({ storage, limits: { fileSize: 50 * 1024 * 1024 } }); // 5
 
 app.use(express.json());
 app.use(express.static('public'));
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static('/uploads'));
 
 // ── Trips ──────────────────────────────────────────────────────────────────
 
@@ -66,13 +66,13 @@ app.put('/api/trips/:id', upload.single('cover_photo'), (req, res) => {
   let cover_photo = existing.cover_photo;
 
   if (remove_cover === 'true' && cover_photo) {
-    try { fs.unlinkSync(`uploads/${cover_photo}`); } catch {}
+    try { fs.unlinkSync(`/uploads/${cover_photo}`); } catch {}
     cover_photo = null;
   }
 
   if (req.file) {
     if (cover_photo) {
-      try { fs.unlinkSync(`uploads/${cover_photo}`); } catch {}
+      try { fs.unlinkSync(`/uploads/${cover_photo}`); } catch {}
     }
     cover_photo = req.file.filename;
   }
@@ -90,11 +90,11 @@ app.delete('/api/trips/:id', (req, res) => {
   if (!trip) return res.status(404).json({ error: 'Not found' });
 
   if (trip.cover_photo) {
-    try { fs.unlinkSync(`uploads/${trip.cover_photo}`); } catch {}
+    try { fs.unlinkSync(`/uploads/${trip.cover_photo}`); } catch {}
   }
 
   const photos = db.prepare('SELECT * FROM photos WHERE trip_id = ?').all([req.params.id]);
-  photos.forEach(p => { try { fs.unlinkSync(`uploads/${p.filename}`); } catch {} });
+  photos.forEach(p => { try { fs.unlinkSync(`/uploads/${p.filename}`); } catch {} });
 
   db.prepare('DELETE FROM photos WHERE trip_id = ?').run([req.params.id]);
   db.prepare('DELETE FROM landmarks WHERE trip_id = ?').run([req.params.id]);
@@ -148,7 +148,7 @@ app.put('/api/photos/:id', (req, res) => {
 app.delete('/api/photos/:id', (req, res) => {
   const photo = db.prepare('SELECT * FROM photos WHERE id = ?').get([req.params.id]);
   if (!photo) return res.status(404).json({ error: 'Not found' });
-  try { fs.unlinkSync(`uploads/${photo.filename}`); } catch {}
+  try { fs.unlinkSync(`/uploads/${photo.filename}`); } catch {}
   db.prepare('DELETE FROM photos WHERE id = ?').run([req.params.id]);
   res.json({ success: true });
 });
