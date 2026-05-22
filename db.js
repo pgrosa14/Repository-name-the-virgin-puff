@@ -1,5 +1,5 @@
 const Database = require('better-sqlite3');
-const db = new Database('virgin_puff.db');
+const db = new Database('/uploads/virgin_puff.db');
 
 db.pragma('journal_mode = WAL');
 
