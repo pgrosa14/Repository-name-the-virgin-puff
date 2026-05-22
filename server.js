@@ -8,11 +8,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Ensure uploads directory exists
-if (!fs.existsSync('uploads')) fs.mkdirSync('uploads');
+if (!fs.existsSync('/uploads')) fs.mkdirSync('/uploads');
 
 // Multer config for file uploads
 const storage = multer.diskStorage({
-  destination: 'uploads/',
+  destination: '/uploads/',
   filename: (req, file, cb) => {
     const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, unique + path.extname(file.originalname));
