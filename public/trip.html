@@ -362,7 +362,7 @@
       grid.innerHTML = allPhotos.map((ph, i) => `
         <div class="photo-item relative group rounded-xl overflow-hidden bg-slate-100 aspect-square" id="ph-${ph.id}">
           <img src="/uploads/${ph.filename}" alt="${ph.caption || ''}" class="w-full h-full object-cover cursor-pointer" onclick="openLightbox(${i})" />
-          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors"></div>
+          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors pointer-events-none"></div>
           <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button onclick="openCaptionModal(${ph.id}, '${(ph.caption||'').replace(/'/g,"\\'")}')" class="w-7 h-7 bg-white/90 rounded-lg flex items-center justify-center text-slate-600 hover:text-blue-600 hover:bg-white">
               <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
