@@ -158,6 +158,9 @@
 
   <!-- ── Photo Lightbox ─────────────────────────────────────────────────── -->
   <div id="lightbox" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center" onclick="if(event.target===this)closeLightbox()">
+   <button id="slideshow-btn" onclick="toggleSlideshow()" class="absolute top-4 left-4 text-white/70 hover:text-white transition-colors z-10 w-10 h-10 flex items-center justify-center rounded-full bg-black/30 hover:bg-black/60">
+  <i data-lucide="play" class="w-5 h-5"></i>
+</button>
     <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white/70 hover:text-white transition-colors z-10">
       <i data-lucide="x" class="w-6 h-6"></i>
     </button>
@@ -478,6 +481,20 @@
       renderPhotos();
     }
 
+    let slideshowTimer = null;
+
+function toggleSlideshow() {
+  const btn = document.getElementById('slideshow-btn');
+  if (slideshowTimer) {
+    clearInterval(slideshowTimer);
+    slideshowTimer = null;
+    btn.innerHTML = '<i data-lucide="play" class="w-5 h-5"></i>';
+  } else {
+    slideshowTimer = setInterval(nextPhoto, 3500);
+    btn.innerHTML = '<i data-lucide="pause" class="w-5 h-5"></i>';
+  }
+  lucide.createIcons();
+}
     // ── Lightbox ────────────────────────────────────────────────────────────
 
     function openLightbox(index) {
@@ -486,7 +503,10 @@
       showModal('lightbox');
     }
 
-    function closeLightbox() { hideModal('lightbox'); }
+    function closeLightbox() {
+  hideModal('lightbox');
+  if (slideshowTimer) { clearInterval(slideshowTimer); slideshowTimer = null; document.getElementById('slideshow-btn').innerHTML = '<i data-lucide="play" class="w-5 h-5"></i>'; }
+}
 
     function updateLightbox() {
       const ph = allPhotos[lightboxIndex];
